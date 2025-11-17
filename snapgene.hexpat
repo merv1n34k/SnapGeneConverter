@@ -28,7 +28,7 @@ enum BlockType : u8 {
     FEATURES = 0x0A,
     HISTORY_NODE = 0x0B,
     UNKNOWN_13 = 0x0D,
-    ALIGN_SEQ_16 = 0x10,
+    SEQ_TRACE_LEGACY = 0x10,
     ALIGN_SEQ_17 = 0x11,
     SEQ_TRACE = 0x12,
     URACIL_POSITIONS = 0x13,
@@ -67,37 +67,13 @@ struct Block {
     BlockType type [[color("FF8800")]];
     u32 dataSize [[color("0088FF")]];
 
-    // Color based on block type
-    if (type == BlockType::SEQ_DNA) {
-        u8 data[dataSize] [[color("FFFFFF")]];
-    } else if (type == BlockType::SEQ_RNA) {
-        u8 data[dataSize] [[color("888888")]];
-    } else if (type == BlockType::SEQ_PROT) {
-        u8 data[dataSize] [[color("FF8888")]];
-    } else if (type == BlockType::COMPRESSED_SEQ) {
-        u8 data[dataSize] [[color("FF0000")]];
-    } else if (type == BlockType::PRIMERS) {
-        char stringData[dataSize] [[color("88FF88")]];
-    } else if (type == BlockType::NOTES) {
-        char notes[dataSize] [[color("88FFFF")]];
-    } else if (type == BlockType::ALIGN_SEQ_16 || type == BlockType::ALIGN_SEQ_17) {
-        u8 rawData[dataSize] [[color("8888FF")]];
-    } else if (type == BlockType::FEATURES) {
-        u8 featureData[dataSize] [[color("FF88FF")]];
-    } else if (type == BlockType::FILE_DESCRIPTION) {
-        char description[dataSize] [[color("FFFF88")]];
-    } else if (type == BlockType::SEQ_TRACE) {
-        u8 traceData[dataSize] [[color("88FF88")]];
-    } else if (type == BlockType::URACIL_POSITIONS) {
-        u8 pointData[dataSize] [[color("FF8888")]];
-    } else {
-        u8 unknownData[dataSize] [[color(COLOR_UNKNOWN)]];
-    }
+    // Check if contains LZMA signature
+    u8 data[dataSize];
 } [[format("format_block")]];
 
 // Format function for nice display
 fn format_block(Block block) {
-    return std::format("Type: {} (0x{:02X}), Size: {} bytes",
+    return std::format("{} (0x{:02X}), {}",
         get_block_name(block.type), u8(block.type), block.dataSize);
 };
 
@@ -114,9 +90,9 @@ fn get_block_name(BlockType type) {
     if (type == BlockType::FILE_DESCRIPTION) return "File Description";
     if (type == BlockType::FEATURES) return "Features";
     if (type == BlockType::HISTORY_NODE) return "History Node";
-    if (type == BlockType::ALIGN_SEQ_16) return "Alignable sequence";
-    if (type == BlockType::ALIGN_SEQ_17) return "Alignable sequence";
-    if (type == BlockType::SEQ_TRACE) return "Sequence Trace";
+    if (type == BlockType::SEQ_TRACE_LEGACY) return "Sequence Trace (legacy)";
+    if (type == BlockType::ALIGN_SEQ_17) return "Alignable Sequence";
+    if (type == BlockType::SEQ_TRACE) return "Sequence Trace (ZTR)";
     if (type == BlockType::URACIL_POSITIONS) return "Uracil Positions";
     if (type == BlockType::CUSTOM_COLORS) return "Custom Colors";
     if (type == BlockType::ENZ_VIZ) return "Enzyme vizualisation";
