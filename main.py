@@ -98,7 +98,6 @@ def parse_sgff(filepath):
 
                 # Find XZ signature and decompress
                 xz_pos = node_data.find(b"\xfd7zXZ\x00")
-                print(f"Found XZ signature at {xz_pos} byte!")
                 if xz_pos != -1:
                     try:
                         decompressed = lzma.decompress(node_data[xz_pos:])
@@ -136,7 +135,6 @@ def parse_node(data):
     while offset + 5 <= len(data):
         block_type = data[offset]
         block_size = struct.unpack(">I", data[offset + 1 : offset + 5])[0]
-        print(f"found {block_type} with {block_size} bytes")
 
         if block_size > len(data) - offset - 5:
             break
