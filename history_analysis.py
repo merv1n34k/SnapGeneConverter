@@ -6,6 +6,7 @@ Analyze SnapGene file history blocks
 import struct
 import sys
 import lzma
+import zlib
 
 
 def parse_blocks(filepath):
@@ -98,11 +99,82 @@ def decompress(filepath):
             print()
 
 
+# possible structure for nodes can be
+# <1b-type-18><4b-node-length><4b-node-id>
+# <1b-type-0/1><4b-sequence-length><1b-padding><nb-sequence>
+# <1b-type-30><4b-compressed-info-length><nb-compressed-info>
+
+
+def parse_node_structure(filepath):
+    """Parse history nodes with the discovered structure"""
+    blocks = parse_blocks(filepath)
+
+    for block in blocks:
+        if block["type"] == 0x0B:  # History nodes
+            data = block["data"]
+            node_index = struct.unpack(">I", data[0:4])[0]
+
+            # if node_index == 3:
+            #    continue
+
+            # print(f"Node {node_index}: {len(data)} bytes")
+
+            offset = 4  # After node index
+
+            # Sequence type (0=dna, 1=compressed, 32=rna, 21=protein)
+            seq_type = data[offset]
+            offset += 1
+            print(f"type  : {seq_type}")
+
+            # Sequence length
+            seq_length = struct.unpack(">I", data[offset : offset + 4])[0]
+            offset += 4
+            print(f"length:{seq_length}")
+
+            # Extract sequence
+            sequence_data = data[offset : offset + seq_length]
+            print(f"seq   :{sequence_data[12:15].hex()}")
+            offset += seq_length
+
+            if seq_type == 0:
+                print(
+                    f"  Raw DNA: {sequence_data[:50].decode('ascii', errors='ignore')}..."
+                )
+            else:
+                try:
+                    decompressed = zlib.decompress(sequence_data)
+                    print(f"  Decompressed DNA: {len(decompressed)} bytes")
+                    sequence_data = decompressed
+                except:
+                    pass
+                    # print(f"  Failed to decompress")
+
+            # Parse type 0x30 block
+            if data[offset] == 0x1E:
+                offset += 1
+                info_length = struct.unpack(">I", data[offset : offset + 4])[0]
+                offset += 4
+                # print(f"  Compressed info length: {info_length}")
+
+                # XZ data follows
+                # print(f"  XZ data at offset {offset}")
+                if data[offset : offset + 6] == b"\xfd7zXZ\x00":
+                    try:
+                        xz_data = lzma.decompress(data[offset:])
+                        # print(f"  XZ decompressed: {len(xz_data)} bytes")
+                    except:
+                        pass
+                        # print(f"  XZ decompression failed")
+
+            print()
+
+
 def main(filepath):
     """Main function - uncomment the analysis you want to run"""
 
     # list_all_blocks(filepath)
-    decompress(filepath)
+    # decompress(filepath)
+    parse_node_structure(filepath)
 
 
 if __name__ == "__main__":
