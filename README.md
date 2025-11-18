@@ -26,10 +26,10 @@ Currently file structure looks like this:
 
 ```bash
 # file structure table
-# 0: sequence_dna:utf-8
-# 1: compressed sequence:?
+# 0: sequence_dna:ascii
+# 1: compressed sequence:WHICH COMPRESSOR?!
 # 2:
-# 3:
+# 3: enzyme_library:mixed (enzyme sites + id?)
 # 4:
 # 5: primers:xml
 # 6: notes:xml
@@ -37,16 +37,16 @@ Currently file structure looks like this:
 # 8: additional sequence properties:xml
 # 9: file Description:?
 # 10: features:xml
-# 11: history node:lzma compressed:1.gzip zrt-trace file + 2.xml
+# 11: history_node:tlv container for ((0/1/32)+30)/29
 # 12:
-# 13: legacy?:binary
+# 13: enzyme_info:mixed
 # 14: enzyme_custom:xml
 # 15:
-# 16: alignable sequence:binary
-# 17: alignable sequence:xml
-# 18: sequence trace:?
-# 19: uracil Positions:?
-# 20: custom colors:xml
+# 16: sequence trace(legacy): 4 empty bytes
+# 17: alignable sequences:xml
+# 18: sequence trace:zrt-trace format
+# 19: uracil_positions:?
+# 20: custom_colors:xml
 # 21: sequence_protein:utf-8
 # 22:
 # 23:
@@ -55,10 +55,10 @@ Currently file structure looks like this:
 # 26:
 # 27: unknown:binary
 # 28: enzyme_vizualisation:xml
-# 29:
-# 30:
+# 29: history_modifier:lzma
+# 30: history_content:lzma (content from file it was taken, except for sequence)
 # 31:
-# 32: sequence_rna:utf-8
+# 32: sequence_rna:ascii
 ```
 
 ## Install
@@ -74,6 +74,7 @@ uv run main.py # or history_analysis.py
 
 ## Roadmap
 
+- [ ] Improve SGFF parsing, unify TLV strategy
 - [ ] Understand whole file structure
 - [ ] Correctly parse into readable form every block
 - [ ] Parse XML into pure JSON format
