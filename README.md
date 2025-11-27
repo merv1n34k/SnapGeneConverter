@@ -37,7 +37,7 @@ Currently file structure looks like this:
 # 8: additional sequence properties:xml
 # 9: file Description:?
 # 10: features:xml
-# 11: history_node:tlv container for ((0/1/32)+30)/29
+# 11: history_node:complex container
 # 12:
 # 13: enzyme_info:mixed
 # 14: enzyme_custom:xml
@@ -56,7 +56,7 @@ Currently file structure looks like this:
 # 27: unknown:binary
 # 28: enzyme_vizualisation:xml
 # 29: history_modifier:lzma
-# 30: history_content:lzma (content from file it was taken, except for sequence)
+# 30: history_content:lzma
 # 31:
 # 32: sequence_rna:ascii
 ```
@@ -74,10 +74,11 @@ uv run main.py # or history_analysis.py
 
 ## Roadmap
 
-- [ ] Improve SGFF parsing, unify TLV strategy
-- [ ] Understand whole file structure
-- [ ] Correctly parse into readable form every block
+- [X] Improve SGFF parsing, unify TLV strategy
+- [X] Understand whole file structure
+- [X] Correctly parse into readable from *almost* every block
 - [ ] Parse XML into pure JSON format
+- [ ] Parse and decode missing blocks and pieces
 - [ ] Create writer (if possible)
 - [ ] Refine, refactor reader/writer
 - [ ] Proper documentation and README cleanup
